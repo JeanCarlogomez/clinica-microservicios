@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Citas programadas</h2>
+<a href="{{ url_for('nueva_cita') }}">+ Nueva Cita</a>
+<table>
+    <thead>
+        <tr><th>ID</th><th>Paciente ID</th><th>Fecha</th><th>Medico</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+        {% for c in citas %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.paciente_id }}</td>
+            <td>{{ c.fecha }}</td>
+            <td>{{ c.medico }}</td>
+            <td>{{ c.estado }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No hay citas registradas.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

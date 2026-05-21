@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Historial Clinico</h2>
+<a href="{{ url_for('nuevo_historial') }}">+ Nuevo Registro</a>
+<table>
+    <thead>
+        <tr><th>ID</th><th>Paciente ID</th><th>Diagnostico</th><th>Fecha</th><th>Notas</th></tr>
+    </thead>
+    <tbody>
+        {% for r in registros %}
+        <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.paciente_id }}</td>
+            <td>{{ r.diagnostico }}</td>
+            <td>{{ r.fecha }}</td>
+            <td>{{ r.notas }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No hay registros de historial.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

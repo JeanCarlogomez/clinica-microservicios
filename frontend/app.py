@@ -1,54 +1,115 @@
-# /frontend/app.py
-
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 import os
 import requests
 
 app = Flask(__name__)
+app.secret_key = "clinica_secret"
 
-# Obtén la URL del API Gateway desde las variables de entorno.
-# Esta variable debe estar configurada en el docker-compose.yml.
 API_GATEWAY_URL = os.getenv("API_GATEWAY_URL", "http://localhost:8000")
+
+# --- PACIENTES ---
+
 
 @app.route("/")
 def index():
-    """Ruta de la página de inicio."""
-    
-    # TODO: Haz una llamada al API Gateway para obtener datos, si es necesario.
-    # Por ejemplo, para obtener la lista de items de un servicio:
-    # try:
-    #     response = requests.get(f"{API_GATEWAY_URL}/api/v1/[recurso]")
-    #     response.raise_for_status()  # Lanza un error para códigos de estado 4xx/5xx
-    #     items = response.json()
-    # except requests.exceptions.RequestException as e:
-    #     print(f"Error al conectar con el API Gateway: {e}")
-    #     items = []
+    try:
+        response = requests.get(f"{API_GATEWAY_URL}/api/v1/pacientes/pacientes/")
+        response.raise_for_status()
+        pacientes = response.json()
+    except requests.exceptions.RequestException:
+        pacientes = []
+    return render_template("index.html", title="Pacientes", pacientes=pacientes)
 
-    # Pasa los datos a la plantilla para renderizarlos.
-    return render_template("index.html", title="Inicio")
 
-@app.route("/new-item", methods=["GET", "POST"])
-def new_item():
-    """Ruta para crear un nuevo ítem."""
+@app.route("/pacientes/nuevo", methods=["GET", "POST"])
+def nuevo_paciente():
     if request.method == "POST":
-        # TODO: Recoge los datos del formulario.
-        # item_data = {
-        #     "name": request.form.get("name"),
-        #     "description": request.form.get("description")
-        # }
-        
-        # TODO: Envía los datos al API Gateway para crear un nuevo recurso.
-        # try:
-        #     response = requests.post(f"{API_GATEWAY_URL}/api/v1/[recurso]", json=item_data)
-        #     response.raise_for_status()
-        #     return redirect(url_for("index"))
-        # except requests.exceptions.RequestException as e:
-        #     print(f"Error al crear el ítem: {e}")
-        #     return "Error al crear el ítem.", 500
-            
-        return "Método POST no implementado.", 501
+        data = {
+            "nombre": request.form.get("nombre"),
+            "cedula": request.form.get("cedula"),
+            "email": request.form.get("email"),
+            "telefono": request.form.get("telefono"),
+        }
+        try:
+            response = requests.post(
+                f"{API_GATEWAY_URL}/api/v1/pacientes/pacientes/", json=data
+            )
+            response.raise_for_status()
+            flash("Paciente registrado exitosamente.", "success")
+            return redirect(url_for("index"))
+        except requests.exceptions.RequestException:
+            flash("Error al registrar el paciente.", "danger")
+    return render_template("form_paciente.html", title="Nuevo Paciente")
 
-    return render_template("form.html", title="Nuevo Ítem")
+
+# --- CITAS ---
+
+
+@app.route("/citas")
+def citas():
+    try:
+        response = requests.get(f"{API_GATEWAY_URL}/api/v1/citas/citas/")
+        response.raise_for_status()
+        citas = response.json()
+    except requests.exceptions.RequestException:
+        citas = []
+    return render_template("citas.html", title="Citas", citas=citas)
+
+
+@app.route("/citas/nueva", methods=["GET", "POST"])
+def nueva_cita():
+    if request.method == "POST":
+        data = {
+            "paciente_id": int(request.form.get("paciente_id")),
+            "fecha": request.form.get("fecha"),
+            "medico": request.form.get("medico"),
+            "estado": "programada",
+        }
+        try:
+            response = requests.post(
+                f"{API_GATEWAY_URL}/api/v1/citas/citas/", json=data
+            )
+            response.raise_for_status()
+            flash("Cita agendada exitosamente.", "success")
+            return redirect(url_for("citas"))
+        except requests.exceptions.RequestException:
+            flash("Error al agendar la cita.", "danger")
+    return render_template("form_cita.html", title="Nueva Cita")
+
+
+# --- HISTORIAL ---
+
+
+@app.route("/historial")
+def historial():
+    try:
+        response = requests.get(f"{API_GATEWAY_URL}/api/v1/historial/historial/")
+        response.raise_for_status()
+        registros = response.json()
+    except requests.exceptions.RequestException:
+        registros = []
+    return render_template("historial.html", title="Historial", registros=registros)
+
+
+@app.route("/historial/nuevo", methods=["GET", "POST"])
+def nuevo_historial():
+    if request.method == "POST":
+        data = {
+            "paciente_id": int(request.form.get("paciente_id")),
+            "diagnostico": request.form.get("diagnostico"),
+            "notas": request.form.get("notas"),
+        }
+        try:
+            response = requests.post(
+                f"{API_GATEWAY_URL}/api/v1/historial/historial/", json=data
+            )
+            response.raise_for_status()
+            flash("Historial registrado exitosamente.", "success")
+            return redirect(url_for("historial"))
+        except requests.exceptions.RequestException:
+            flash("Error al registrar el historial.", "danger")
+    return render_template("form_historial.html", title="Nuevo Historial")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

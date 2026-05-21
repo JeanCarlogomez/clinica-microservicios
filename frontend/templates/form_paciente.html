@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registrar Paciente</h2>
+<form method="POST">
+    <label>Nombre: <input type="text" name="nombre" required></label><br>
+    <label>Cedula: <input type="text" name="cedula" required></label><br>
+    <label>Email: <input type="email" name="email" required></label><br>
+    <label>Telefono: <input type="text" name="telefono" required></label><br>
+    <button type="submit">Guardar</button>
+    <a href="{{ url_for('index') }}">Cancelar</a>
+</form>
+{% endblock %}

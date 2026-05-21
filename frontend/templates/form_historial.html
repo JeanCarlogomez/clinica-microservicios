@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Registrar Historial</h2>
+<form method="POST">
+    <label>ID Paciente: <input type="number" name="paciente_id" required></label><br>
+    <label>Diagnostico: <input type="text" name="diagnostico" required></label><br>
+    <label>Notas: <textarea name="notas"></textarea></label><br>
+    <button type="submit">Guardar</button>
+    <a href="{{ url_for('historial') }}">Cancelar</a>
+</form>
+{% endblock %}
