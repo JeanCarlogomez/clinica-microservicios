@@ -15,59 +15,57 @@ services:
     container_name: api-gateway
     ports:
       - "8000:8000"
+    environment:
+      - AUTH_SERVICE_URL=http://auth:8001
+      - PACIENTES_SERVICE_URL=http://ms-pacientes:8002
+      - CITAS_SERVICE_URL=http://ms-citas:8003
+      - HISTORIAL_SERVICE_URL=http://ms-historial:8004
     depends_on:
-      - auth-service
-    # Aquí puedes agregar los otros servicios base
+      - auth
+      - ms-pacientes
+      - ms-citas
+      - ms-historial
 
-  # Microservicio de Autenticación
-  auth-service:
-    build: ./services/authentication
-    container_name: auth-service
+  auth:
+    build: ./services/auth
+    container_name: auth
     ports:
       - "8001:8001"
     environment:
-      - DATABASE_URL=mongodb://auth-db:27017/auth_db
-    depends_on:
-      - auth-db
-
-  # Base de datos para el servicio de autenticación
-  auth-db:
-    image: mongo:latest
-    container_name: auth-db
-    ports:
-      - "27017:27017"
+      - DATABASE_URL=sqlite:////data/clinica.db
+      - SECRET_KEY=${SECRET_KEY}
     volumes:
-      - auth_data:/data/db
+      - db-data:/data
 
-  # --- Plantillas de Microservicios ---
-  # TODO: Copiar y modificar "service1" para cada servicio según el tema seleccionado
-  
-  # Microservicio de Nombre_del_microservicio
-  service1-service:
-     build: ./services/service1 
-     container_name: service1-service
-     ports:
-       - "8002:8002"
-     environment:
-       - DATABASE_URL=postgresql://user:password@service1-db:5432/service1_db
-     depends_on:
-       - service1-db
+  ms-pacientes:
+    build: ./services/ms-pacientes
+    container_name: ms-pacientes
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=sqlite:////data/clinica.db
+    volumes:
+      - db-data:/data
 
-  # Base de datos para el servicio1
-  service1-db:
-     image: postgres:latest
-     container_name: service1-db
-     environment:
-       - POSTGRES_USER=user
-       - POSTGRES_PASSWORD=password
-       - POSTGRES_DB=service1_db
-     ports:
-       - "5432:5432"
-     volumes:
-       - service1_data:/var/lib/postgresql/data
+  ms-citas:
+    build: ./services/ms-citas
+    container_name: ms-citas
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=sqlite:////data/clinica.db
+    volumes:
+      - db-data:/data
+
+  ms-historial:
+    build: ./services/ms-historial
+    container_name: ms-historial
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=sqlite:////data/clinica.db
+    volumes:
+      - db-data:/data
 
 volumes:
-  auth_data:
-  service1_data:
-  service2_data:
-  service3_data:
+  db-data:
