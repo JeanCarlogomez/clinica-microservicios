@@ -1,41 +1,57 @@
-from fastapi import FastAPI, APIRouter, HTTPException
-import os
+from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from .database_sql import create_db_and_tables, get_db
+from .models import Paciente, PacienteCreate, PacienteRead
 
-# TODO: Importar el módulo de base de datos y los modelos
-# from .database import [tu_motor_de_base_de_datos]
-# from .models import [tus_modelos]
-
-# TODO: Configurar la URL de la base de datos desde las variables de entorno
-# DATABASE_URL = os.getenv("DATABASE_URL")
-
-app = FastAPI()
-
-# TODO: Crea una instancia del router para organizar los endpoints
+app = FastAPI(title="Servicio de Pacientes")
 router = APIRouter()
 
-# TODO: Define un endpoint raíz o de salud para verificar que el servicio está funcionando
+
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+
+
 @app.get("/")
 def read_root():
-    return {"message": "Servicio de [nombre_del_servicio] en funcionamiento."}
+    return {"message": "Servicio de Pacientes en funcionamiento."}
+
 
 @app.get("/health")
 def health_check():
-    """Endpoint de salud para verificar el estado del servicio."""
     return {"status": "ok"}
 
-# TODO: Implementa los endpoints de tu microservicio aquí
-# Ejemplo de un endpoint GET:
-# @router.get("/[ruta_del_recurso]/")
-# async def get_[recurso]():
-#     # TODO: Agrega la lógica de tu negocio aquí
-#     return {"data": "Aquí van tus datos."}
 
-# Ejemplo de un endpoint POST:
-# @router.post("/[ruta_del_recurso]/")
-# async def create_[recurso](item: [tu_modelo_pydantic]):
-#     # TODO: Agrega la lógica para crear un nuevo recurso
-#     return {"message": "[recurso] creado exitosamente."}
+@router.get("/pacientes/", response_model=list[PacienteRead])
+def listar_pacientes(db: Session = Depends(get_db)):
+    return db.query(Paciente).all()
 
 
-# TODO: Incluir el router en la aplicación principal
-# app.include_router(router, prefix="/api/v1")
+@router.get("/pacientes/{paciente_id}", response_model=PacienteRead)
+def obtener_paciente(paciente_id: int, db: Session = Depends(get_db)):
+    paciente = db.query(Paciente).filter(Paciente.id == paciente_id).first()
+    if not paciente:
+        raise HTTPException(status_code=404, detail="Paciente no encontrado")
+    return paciente
+
+
+@router.post("/pacientes/", response_model=PacienteRead)
+def crear_paciente(paciente: PacienteCreate, db: Session = Depends(get_db)):
+    db_paciente = Paciente(**paciente.model_dump())
+    db.add(db_paciente)
+    db.commit()
+    db.refresh(db_paciente)
+    return db_paciente
+
+
+@router.delete("/pacientes/{paciente_id}")
+def eliminar_paciente(paciente_id: int, db: Session = Depends(get_db)):
+    paciente = db.query(Paciente).filter(Paciente.id == paciente_id).first()
+    if not paciente:
+        raise HTTPException(status_code=404, detail="Paciente no encontrado")
+    db.delete(paciente)
+    db.commit()
+    return {"message": "Paciente eliminado"}
+
+
+app.include_router(router, prefix="/api/v1")
