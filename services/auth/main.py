@@ -4,8 +4,8 @@ from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
 import os
-from .database_sql import create_db_and_tables, get_db
-from .models import Usuario, UsuarioCreate, UsuarioRead, LoginRequest, TokenResponse
+from database_sql import create_db_and_tables, get_db
+from models import Usuario, UsuarioCreate, UsuarioRead, LoginRequest, TokenResponse
 
 app = FastAPI(title="Servicio de Autenticacion")
 router = APIRouter()

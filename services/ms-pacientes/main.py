@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from .database_sql import create_db_and_tables, get_db
-from .models import Paciente, PacienteCreate, PacienteRead
+from database_sql import create_db_and_tables, get_db
+from models import Paciente, PacienteCreate, PacienteRead
 
 app = FastAPI(title="Servicio de Pacientes")
 router = APIRouter()

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from .database_sql import create_db_and_tables, get_db
-from .models import Historial, HistorialCreate, HistorialRead
+from database_sql import create_db_and_tables, get_db
+from models import Historial, HistorialCreate, HistorialRead
 
 app = FastAPI(title="Servicio de Historial")
 router = APIRouter()

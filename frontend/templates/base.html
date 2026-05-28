@@ -8,23 +8,26 @@
 </head>
 <body>
     <header>
-        <h1>Clinica Microservicios</h1>
-        <nav>
-            <a href="{{ url_for('index') }}">Pacientes</a>
-            <a href="{{ url_for('citas') }}">Citas</a>
-            <a href="{{ url_for('historial') }}">Historial</a>
-        </nav>
+        <div class="header-content">
+            <h1>🏥 Clinica <span>Microservicios</span></h1>
+            <nav>
+                <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">🏠 Inicio</a>
+                <a href="{{ url_for('pacientes') }}" class="{{ 'active' if 'paciente' in request.endpoint }}">👥 Pacientes</a>
+                <a href="{{ url_for('citas') }}" class="{{ 'active' if 'cita' in request.endpoint }}">📅 Citas</a>
+                <a href="{{ url_for('historial') }}" class="{{ 'active' if 'historial' in request.endpoint }}">🗂️ Historial</a>
+            </nav>
+        </div>
     </header>
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
-                <p class="{{ category }}">{{ message }}</p>
+                <div class="alert {{ category }}">{{ message }}</div>
             {% endfor %}
         {% endwith %}
         {% block content %}{% endblock %}
     </main>
     <footer>
-        <p>&copy; 2025 Clinica - Seminario Microservicios</p>
+        <p>&copy; 2025 Clinica Microservicios — Seminario Desarrollo Moderno con Python</p>
     </footer>
 </body>
 </html>

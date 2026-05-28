@@ -1,23 +1,62 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Citas programadas</h2>
-<a href="{{ url_for('nueva_cita') }}">+ Nueva Cita</a>
-<table>
-    <thead>
-        <tr><th>ID</th><th>Paciente ID</th><th>Fecha</th><th>Medico</th><th>Estado</th></tr>
-    </thead>
-    <tbody>
-        {% for c in citas %}
-        <tr>
-            <td>{{ c.id }}</td>
-            <td>{{ c.paciente_id }}</td>
-            <td>{{ c.fecha }}</td>
-            <td>{{ c.medico }}</td>
-            <td>{{ c.estado }}</td>
-        </tr>
-        {% else %}
-        <tr><td colspan="5">No hay citas registradas.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="page-header">
+    <h2>Citas programadas</h2>
+    <a href="{{ url_for('nueva_cita') }}" class="btn btn-primary">+ Nueva Cita</a>
+</div>
+
+<div class="search-bar">
+    <input type="text" id="buscador" placeholder="🔍 Buscar por médico o estado..." onkeyup="filtrarTabla()">
+</div>
+
+<div class="table-wrapper">
+    <table id="tabla-citas">
+        <thead>
+            <tr><th>ID</th><th>Paciente ID</th><th>Fecha</th><th>Médico</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+            {% for c in citas %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.paciente_id }}</td>
+                <td>{{ c.fecha[:16].replace('T',' ') if c.fecha else '—' }}</td>
+                <td>{{ c.medico }}</td>
+                <td>
+                    {% if c.estado == 'programada' %}
+                        <span class="badge badge-green">{{ c.estado }}</span>
+                    {% elif c.estado == 'completada' %}
+                        <span class="badge badge-blue">{{ c.estado }}</span>
+                    {% else %}
+                        <span class="badge badge-red">{{ c.estado }}</span>
+                    {% endif %}
+                </td>
+                <td class="acciones-cita">
+                    <form method="POST" action="{{ url_for('cambiar_estado_cita', cita_id=c.id) }}" style="display:inline">
+                        <select name="estado" onchange="this.form.submit()" class="select-estado">
+                            <option value="programada" {% if c.estado=='programada' %}selected{% endif %}>Programada</option>
+                            <option value="completada" {% if c.estado=='completada' %}selected{% endif %}>Completada</option>
+                            <option value="cancelada" {% if c.estado=='cancelada' %}selected{% endif %}>Cancelada</option>
+                        </select>
+                    </form>
+                    <form method="POST" action="{{ url_for('eliminar_cita', cita_id=c.id) }}" style="display:inline" onsubmit="return confirmar('¿Eliminar esta cita?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="empty">No hay citas registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function filtrarTabla() {
+    const input = document.getElementById("buscador").value.toLowerCase();
+    document.querySelectorAll("#tabla-citas tbody tr").forEach(fila => {
+        fila.style.display = fila.textContent.toLowerCase().includes(input) ? "" : "none";
+    });
+}
+function confirmar(msg) { return confirm(msg); }
+</script>
 {% endblock %}

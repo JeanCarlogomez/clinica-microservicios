@@ -1,12 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Registrar Paciente</h2>
-<form method="POST">
-    <label>Nombre: <input type="text" name="nombre" required></label><br>
-    <label>Cedula: <input type="text" name="cedula" required></label><br>
-    <label>Email: <input type="email" name="email" required></label><br>
-    <label>Telefono: <input type="text" name="telefono" required></label><br>
-    <button type="submit">Guardar</button>
-    <a href="{{ url_for('index') }}">Cancelar</a>
-</form>
+<div class="page-header">
+    <h2>Registrar Paciente</h2>
+</div>
+<div class="form-card">
+    <form method="POST">
+        <div class="form-group">
+            <label>Nombre completo</label>
+            <input type="text" name="nombre" placeholder="Ej: Juan Pérez" required>
+        </div>
+        <div class="form-group">
+            <label>Cédula</label>
+            <input type="text" name="cedula" placeholder="Ej: 1234567890" required>
+        </div>
+        <div class="form-group">
+            <label>Correo electrónico</label>
+            <input type="email" name="email" placeholder="Ej: juan@email.com" required>
+        </div>
+        <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" name="telefono" placeholder="Ej: 3001234567" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar Paciente</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
 {% endblock %}

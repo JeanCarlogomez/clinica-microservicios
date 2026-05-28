@@ -1,11 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Agendar Cita</h2>
-<form method="POST">
-    <label>ID Paciente: <input type="number" name="paciente_id" required></label><br>
-    <label>Fecha: <input type="datetime-local" name="fecha" required></label><br>
-    <label>Medico: <input type="text" name="medico" required></label><br>
-    <button type="submit">Guardar</button>
-    <a href="{{ url_for('citas') }}">Cancelar</a>
-</form>
+<div class="page-header">
+    <h2>Agendar Cita</h2>
+</div>
+<div class="form-card">
+    <form method="POST">
+        <div class="form-group">
+            <label>Paciente</label>
+            {% if pacientes %}
+            <select name="paciente_id" required>
+                <option value="" disabled selected>-- Seleccione un paciente --</option>
+                {% for p in pacientes %}
+                <option value="{{ p.id }}">{{ p.nombre }} — {{ p.cedula }}</option>
+                {% endfor %}
+            </select>
+            {% else %}
+            <p class="empty-select">⚠️ No hay pacientes registrados. <a href="{{ url_for('nuevo_paciente') }}">Registrar uno</a></p>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label>Fecha y hora</label>
+            <input type="datetime-local" name="fecha" required>
+        </div>
+        <div class="form-group">
+            <label>Médico</label>
+            <input type="text" name="medico" placeholder="Ej: Dr. García" required>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" {% if not pacientes %}disabled{% endif %}>Agendar Cita</button>
+            <a href="{{ url_for('citas') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
 {% endblock %}

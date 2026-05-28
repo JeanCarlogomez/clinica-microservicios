@@ -1,23 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Historial Clinico</h2>
-<a href="{{ url_for('nuevo_historial') }}">+ Nuevo Registro</a>
-<table>
-    <thead>
-        <tr><th>ID</th><th>Paciente ID</th><th>Diagnostico</th><th>Fecha</th><th>Notas</th></tr>
-    </thead>
-    <tbody>
-        {% for r in registros %}
-        <tr>
-            <td>{{ r.id }}</td>
-            <td>{{ r.paciente_id }}</td>
-            <td>{{ r.diagnostico }}</td>
-            <td>{{ r.fecha }}</td>
-            <td>{{ r.notas }}</td>
-        </tr>
-        {% else %}
-        <tr><td colspan="5">No hay registros de historial.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="page-header">
+    <h2>Historial Clínico</h2>
+    <a href="{{ url_for('nuevo_historial') }}" class="btn btn-primary">+ Nuevo Registro</a>
+</div>
+
+<div class="search-bar">
+    <input type="text" id="buscador" placeholder="🔍 Buscar por diagnóstico o notas..." onkeyup="filtrarTabla()">
+</div>
+
+<div class="table-wrapper">
+    <table id="tabla-historial">
+        <thead>
+            <tr><th>ID</th><th>Paciente ID</th><th>Diagnóstico</th><th>Fecha</th><th>Notas</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+            {% for r in registros %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.paciente_id }}</td>
+                <td>{{ r.diagnostico }}</td>
+                <td>{{ r.fecha[:10] if r.fecha else '—' }}</td>
+                <td>{{ r.notas or '—' }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('eliminar_historial', historial_id=r.id) }}" style="display:inline" onsubmit="return confirmar('¿Eliminar este registro?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="empty">No hay registros de historial.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function filtrarTabla() {
+    const input = document.getElementById("buscador").value.toLowerCase();
+    document.querySelectorAll("#tabla-historial tbody tr").forEach(fila => {
+        fila.style.display = fila.textContent.toLowerCase().includes(input) ? "" : "none";
+    });
+}
+function confirmar(msg) { return confirm(msg); }
+</script>
 {% endblock %}

@@ -1,7 +1,8 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from .database_sql import create_db_and_tables, get_db
-from .models import Cita, CitaCreate, CitaRead
+from database_sql import create_db_and_tables, get_db
+from models import Cita, CitaCreate, CitaRead
 
 app = FastAPI(title="Servicio de Citas")
 router = APIRouter()
@@ -55,3 +56,20 @@ def cancelar_cita(cita_id: int, db: Session = Depends(get_db)):
 
 
 app.include_router(router, prefix="/api/v1")
+
+
+class CitaUpdate(BaseModel):
+    estado: str
+
+
+@router.patch("/citas/{cita_id}", response_model=CitaRead)
+def actualizar_estado_cita(
+    cita_id: int, data: CitaUpdate, db: Session = Depends(get_db)
+):
+    cita = db.query(Cita).filter(Cita.id == cita_id).first()
+    if not cita:
+        raise HTTPException(status_code=404, detail="Cita no encontrada")
+    cita.estado = data.estado
+    db.commit()
+    db.refresh(cita)
+    return cita

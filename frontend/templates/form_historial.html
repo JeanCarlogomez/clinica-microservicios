@@ -1,11 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Registrar Historial</h2>
-<form method="POST">
-    <label>ID Paciente: <input type="number" name="paciente_id" required></label><br>
-    <label>Diagnostico: <input type="text" name="diagnostico" required></label><br>
-    <label>Notas: <textarea name="notas"></textarea></label><br>
-    <button type="submit">Guardar</button>
-    <a href="{{ url_for('historial') }}">Cancelar</a>
-</form>
+<div class="page-header">
+    <h2>Registrar Historial</h2>
+</div>
+<div class="form-card">
+    <form method="POST">
+        <div class="form-group">
+            <label>Paciente</label>
+            {% if pacientes %}
+            <select name="paciente_id" required>
+                <option value="" disabled selected>-- Seleccione un paciente --</option>
+                {% for p in pacientes %}
+                <option value="{{ p.id }}">{{ p.nombre }} — {{ p.cedula }}</option>
+                {% endfor %}
+            </select>
+            {% else %}
+            <p class="empty-select">⚠️ No hay pacientes registrados. <a href="{{ url_for('nuevo_paciente') }}">Registrar uno</a></p>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label>Diagnóstico</label>
+            <input type="text" name="diagnostico" placeholder="Ej: Hipertensión leve" required>
+        </div>
+        <div class="form-group">
+            <label>Notas médicas</label>
+            <textarea name="notas" placeholder="Observaciones, tratamiento, recomendaciones..."></textarea>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" {% if not pacientes %}disabled{% endif %}>Guardar Registro</button>
+            <a href="{{ url_for('historial') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
 {% endblock %}

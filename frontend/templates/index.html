@@ -1,9 +1,94 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <h2>¡Bienvenido al Proyecto del Seminario!</h2>
-    <p>Este es el frontend de tu proyecto. Utiliza el API Gateway para interactuar con los microservicios.</p>
 
-    <a href="{{ url_for('new_item') }}">Crear un nuevo ítem</a>
+<div class="page-header">
+    <h2>Dashboard</h2>
+</div>
 
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+            <span class="stat-number">{{ total_pacientes }}</span>
+            <span class="stat-label">Pacientes</span>
+        </div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon">📅</div>
+        <div class="stat-info">
+            <span class="stat-number">{{ citas_programadas }}</span>
+            <span class="stat-label">Citas programadas</span>
+        </div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-icon">🗂️</div>
+        <div class="stat-info">
+            <span class="stat-number">{{ total_historial }}</span>
+            <span class="stat-label">Registros historial</span>
+        </div>
+    </div>
+    <div class="stat-card gray">
+        <div class="stat-icon">📋</div>
+        <div class="stat-info">
+            <span class="stat-number">{{ total_citas }}</span>
+            <span class="stat-label">Total citas</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header">
+            <h3>Últimos pacientes</h3>
+            <a href="{{ url_for('pacientes') }}" class="btn btn-secondary btn-sm">Ver todos</a>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Nombre</th><th>Cédula</th><th>Teléfono</th></tr>
+            </thead>
+            <tbody>
+                {% for p in ultimos_pacientes %}
+                <tr>
+                    <td><a href="{{ url_for('detalle_paciente', paciente_id=p.id) }}">{{ p.nombre }}</a></td>
+                    <td>{{ p.cedula }}</td>
+                    <td>{{ p.telefono }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" class="empty">No hay pacientes aún.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Últimas citas</h3>
+            <a href="{{ url_for('citas') }}" class="btn btn-secondary btn-sm">Ver todas</a>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Médico</th><th>Fecha</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+                {% for c in ultimas_citas %}
+                <tr>
+                    <td>{{ c.medico }}</td>
+                    <td>{{ c.fecha[:10] if c.fecha else '—' }}</td>
+                    <td>
+                        {% if c.estado == 'programada' %}
+                            <span class="badge badge-green">{{ c.estado }}</span>
+                        {% elif c.estado == 'completada' %}
+                            <span class="badge badge-blue">{{ c.estado }}</span>
+                        {% else %}
+                            <span class="badge badge-red">{{ c.estado }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" class="empty">No hay citas aún.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}
